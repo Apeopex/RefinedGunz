@@ -2,6 +2,7 @@
 #include "MZFile.h"
 #include "MDebug.h"
 #include "zlib_util.h"
+#include "MZip.h"
 
 u32 MZFile::ReadMode = MZIPREADFLAG_ZIP | MZIPREADFLAG_MRS | MZIPREADFLAG_MRS2 | MZIPREADFLAG_FILE;
 
@@ -93,9 +94,10 @@ bool MZFile::OpenArchive(const MZFileDesc& Desc, MZFileSystem& FS)
 {
 	char FullArchivePath[MFile::MaxPath];
 	GetFullArchivePath(FullArchivePath, Desc, FS);
-
-	fp = CFilePtr{fopen(FullArchivePath, "rb")};
-	if (!fp)
+	
+	zz = MZip();
+	
+	if (!zz.Initialize(&FullArchivePath[0], 0, 0))
 	{
 		MLog("MZFile::OpenArchive -- fopen failed on %s!\n", FullArchivePath);
 		assert(false);
@@ -217,46 +219,10 @@ bool MZFile::LoadFile()
 	if (!IsArchive()) {
 		return fread(Data.get(), GetLength(), 1, fp.get()) == 1;
 	}
-
-	// Seek to the start of the DEFLATE data.
-	auto err = fseek(fp.get(), Desc->ArchiveOffset, SEEK_SET);
-	if (err != 0)
-	{
-		MLog("MZFile::LoadFile -- fseek failed (%d)\n", err);
-		return false;
+	
+	if (!zz.ReadFile(&Desc->Filename[0], Data.get(), FileSize)) {
+		MLog("MZFile::LoadFile -- ReadFile failed %s\n", Desc->Filename);
 	}
-
-	if (Desc->CompressedSize == 0)
-	{
-		// Not compressed. Just read the data.
-		return fread(Data.get(), Desc->Size, 1, fp.get()) == 1;
-	}
-
-	// Compressed. Read and inflate the data.
-	auto ret = InflateFile(Data.get(), Desc->Size, fp.get(), Desc->CompressedSize, -MAX_WBITS);
-	if (ret.ErrorCode < 0)
-	{
-		MLog("MZFile::LoadFile -- InflateFile failed with error code %d, error message: %s, "
-			"written %d, read %d\n",
-			ret.ErrorCode, ret.ErrorMessage, ret.BytesWritten, ret.BytesRead);
-		if (ret.ErrorCode == Z_ERRNO)
-		{
-			const auto err = errno;
-			char strerror_buffer[512];
-			auto strerror_ret = strerror_safe(err, strerror_buffer);
-			if (strerror_ret != 0)
-			{
-				sprintf_safe(strerror_buffer, "strerror_safe failed with error code %d",
-					strerror_ret);
-			}
-
-			MLog("errno = %d, strerror(errno) = %s\n",
-				err, strerror_buffer);
-		}
-		assert(false);
-		return false;
-	}
-
 	return true;
 }
 

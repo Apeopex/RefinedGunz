@@ -11,7 +11,10 @@ target_include_directories(cml PUBLIC
 	Include
 	../sdk/rapidxml/include)
 
-target_link_libraries(cml PUBLIC zlib)
+target_link_libraries(cml PUBLIC 
+	${ZLIB_LIBRARY} 
+	zip
+)
 if (UNIX)
 	target_link_libraries(cml PUBLIC pthread)
 endif()

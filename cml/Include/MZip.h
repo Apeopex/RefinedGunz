@@ -11,6 +11,8 @@
 #include <list>
 #include "GlobalTypes.h"
 #include "StringView.h"
+#include <vector>
+#include "libzip/zip.h"
 
 #define MZIPREADFLAG_ZIP		1
 #define MZIPREADFLAG_MRS		1<<1
@@ -98,6 +100,9 @@ protected:
 	const char* FileBuffer{};
 	size_t FileSize{};
 	i64 Pos{};
+	
+	zip_t *reader;
+	std::vector<zip_stat_t> files;
 };
 
 class FNode {

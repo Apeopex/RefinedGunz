@@ -21,6 +21,8 @@ struct MZFileDesc
 	// Empty if the file is not in an archive.
 	// Relative to the file system's base path.
 	StringView ArchivePath;
+	
+	char Filename[260];
 
 	// The offset into the archive file at which it is located.
 	// Zero if not in archive.

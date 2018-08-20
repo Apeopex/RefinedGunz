@@ -2,7 +2,6 @@ cmake_policy(SET CMP0015 NEW)
 
 link_directories(
 	../Gunz
-	../sdk/zlib/lib
 	../sdk/dx9/lib/x86
 	../RealSound/Lib
 	../sdk/opus/lib/Release
@@ -40,15 +39,16 @@ INTERFACE
     .
 )
 
-find_library(zlib_path NAMES zlib PATHS ../sdk/zlib/lib)
 find_library(fmodvc_path NAMES fmodvc PATHS .)
 
 find_library(libsodium_path NAMES libsodium PATHS ../sdk/libsodium/lib/static)
 
 target_link_libraries(Gunz_lib PUBLIC
+	msvcrt.lib
+	msvcmrt.lib
 	legacy_stdio_definitions.lib
 	winmm.lib
-	${zlib_path}
+	${ZLIB_LIBRARY} 
 	${fmodvc_path}
 	sodium
 	opus
@@ -75,4 +75,5 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 endif()
 
 add_target(NAME Gunz TYPE EXECUTABLE SOURCES "${main_file};${CMAKE_CURRENT_SOURCE_DIR}/Gunz.rc")
+set_target_properties(Gunz PROPERTIES COMPILE_DEFINITIONS BUILDER_STATIC_DEFINE)
 target_link_libraries(Gunz PUBLIC Gunz_lib)

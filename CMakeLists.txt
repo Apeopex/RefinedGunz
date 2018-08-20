@@ -11,6 +11,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 include(macros)
 
 if(MSVC)
+	ucm_set_runtime(STATIC)
 	ucm_add_flags(/Zi)
 	ucm_add_linker_flags(EXE CONFIG Release /DEBUG /OPT:REF /OPT:ICF)
   
@@ -21,7 +22,14 @@ else()
  	ucm_add_flags(CXX --std=c++14)
 endif()
 
-add_project_subdir(sdk/zlib)
+FIND_PACKAGE(ZLIB REQUIRED)
+INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
+IF(ZLIB_VERSION_STRING VERSION_LESS "1.1.2")
+  MESSAGE(FATAL_ERROR "-- ZLIB version too old, please install at least v1.1.2")
+ENDIF(ZLIB_VERSION_STRING VERSION_LESS "1.1.2")
+
+
+add_project_subdir(sdk/libzip)
 add_project_subdir(sdk/curl)
 add_project_subdir(sdk/libsodium)
 add_project_subdir(sdk/rapidxml)

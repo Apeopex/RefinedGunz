@@ -15,7 +15,9 @@ target_include_directories(MatchServer_lib PUBLIC
 	../sdk)
 
 target_link_libraries(MatchServer_lib PUBLIC
-	zlib
+	msvcrt.lib
+	msvcmrt.lib
+	${ZLIB_LIBRARY} 
 	sodium
 	sqlite
 	rapidxml

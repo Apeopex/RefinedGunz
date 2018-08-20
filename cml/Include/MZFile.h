@@ -53,6 +53,7 @@ protected:
 		SetData(nullptr, false); }
 
 	CFilePtr fp;
+	MZip zz;
 	DataPtr Data{ (char*)nullptr, MaybeArrayDeleter{false} };
 	const MZFileDesc* Desc{};
 

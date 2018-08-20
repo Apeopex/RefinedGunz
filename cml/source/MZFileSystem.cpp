@@ -138,7 +138,8 @@ void MZFileSystem::AddFilesInArchive(PreprocessedFileTree& Tree, PreprocessedDir
 		Child.ArchivePath = ArchiveDir.ArchivePath;
 
 		Child.Size = Zip.GetFileLength(i);
-		Child.ArchiveOffset = Zip.GetFileArchiveOffset(i);
+		Child.ArchiveOffset = i;
+		Zip.GetFileName(i, &Child.Filename[0]);
 		Child.CompressedSize = Zip.IsFileCompressed(i) ? Zip.GetFileCompressedSize(i) : 0;
 	}
 }
